@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($g = Get-Command git -ErrorAction SilentlyContinue; if \\($g\\) { $g.Source } else { \"not on PATH\" }; Test-Path \"C:\\\\Program Files\\\\Git\\\\cmd\\\\git.exe\"; Test-Path \"C:\\\\Program Files\\\\Git\\\\bin\\\\git.exe\")"
+    ]
+  }
+}

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Log — Coffee Daily Logger</title>
+  <style>
+    :root {
+      --brown-900: #1c0f06;
+      --brown-700: #5a3620;
+      --brown-500: #7b4f2e;
+      --brown-300: #c4956a;
+      --brown-100: #f0deca;
+      --cream:     #fdf8f2;
+      --white:     #ffffff;
+      --green:     #2d7a3a;
+      --red:       #b03030;
+      --shadow:    0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+      --radius:    12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      background: var(--cream);
+      color: var(--brown-900);
+      min-height: 100vh;
+    }
+
+    /* ── Top nav ── */
+    .topbar {
+      background: var(--brown-700);
+      color: var(--white);
+      padding: 0 1.5rem;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .topbar h1 { font-size: 1rem; font-weight: 600; letter-spacing: 0.01em; }
+    .topbar a {
+      color: var(--brown-100);
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.3rem 0.75rem;
+      border: 1px solid var(--brown-300);
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+    .topbar a:hover { background: var(--brown-500); color: var(--white); }
+
+    /* ── Page layout ── */
+    .page { max-width: 740px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .card-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--brown-500);
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Form grid ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 520px) { .form-grid { grid-template-columns: 1fr; } }
+
+    .field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .field label { font-size: 0.8rem; font-weight: 600; color: var(--brown-500); }
+    .field input {
+      padding: 0.55rem 0.75rem;
+      border: 1.5px solid var(--brown-100);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background: #fafaf8;
+      color: var(--brown-900);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field input:focus {
+      outline: none;
+      border-color: var(--brown-300);
+      box-shadow: 0 0 0 3px rgba(196,149,106,0.2);
+    }
+
+    .form-footer {
+      margin-top: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .btn-primary {
+      background: var(--brown-500);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.4rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: var(--brown-700); }
+
+    #status { font-size: 0.85rem; }
+    .success { color: var(--green); }
+    .error   { color: var(--red); }
+
+    /* ── Entries table ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    thead th {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--brown-500);
+      border-bottom: 2px solid var(--brown-100);
+      white-space: nowrap;
+    }
+    tbody tr { transition: background 0.1s; }
+    tbody tr:hover { background: #fdf5ec; }
+    tbody td {
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid #f3ebe0;
+      vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    .no-entries { text-align: center; color: #aaa; padding: 1.5rem 0 !important; }
+
+    /* inline edit inputs */
+    td input.inline {
+      width: 100%;
+      padding: 0.3rem 0.5rem;
+      border: 1.5px solid var(--brown-300);
+      border-radius: 6px;
+      font-size: 0.875rem;
+      background: #fffdf9;
+    }
+    td input.inline:focus { outline: none; box-shadow: 0 0 0 2px rgba(196,149,106,0.3); }
+
+    /* action buttons */
+    .actions { display: flex; gap: 0.4rem; white-space: nowrap; }
+    .btn-sm {
+      padding: 0.28rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: background 0.12s, color 0.12s;
+    }
+    .btn-edit   { background: var(--brown-100); color: var(--brown-700); border-color: var(--brown-100); }
+    .btn-edit:hover { background: var(--brown-300); color: var(--white); border-color: var(--brown-300); }
+    .btn-delete { background: #fdecea; color: var(--red); border-color: #fdecea; }
+    .btn-delete:hover { background: var(--red); color: var(--white); border-color: var(--red); }
+    .btn-save   { background: var(--green); color: var(--white); border-color: var(--green); }
+    .btn-save:hover { background: #245e2d; border-color: #245e2d; }
+    .btn-cancel { background: #f3f3f3; color: #555; border-color: #e0e0e0; }
+    .btn-cancel:hover { background: #e0e0e0; }
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <h1>☕ Coffee Daily Logger</h1>
+    <a href="/dashboard.html">Dashboard →</a>
+  </nav>
+
+  <div class="page">
+    <div class="card">
+      <p class="card-title">New Entry</p>
+      <form id="logForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" required>
+          </div>
+          <div class="field">
+            <label for="shop_name">Coffee Shop Name</label>
+            <input type="text" id="shop_name" name="shop_name" placeholder="e.g. Brew & Co, The Grind" required>
+          </div>
+          <div class="field">
+            <label for="sales">Sales ($)</label>
+            <input type="number" id="sales" name="sales" min="0" step="0.01" placeholder="0.00" required>
+          </div>
+          <div class="field">
+            <label for="customers">Customers</label>
+            <input type="number" id="customers" name="customers" min="0" step="1" placeholder="0" required>
+          </div>
+        </div>
+        <div class="form-footer">
+          <button type="submit" class="btn-primary">Log Entry</button>
+          <span id="status"></span>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <p class="card-title">Previous Entries</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Shop Name</th>
+              <th>Sales ($)</th>
+              <th>Customers</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="entriesBody">
+            <tr><td colspan="5" class="no-entries">No entries yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="/form.js"></script>
+</body>
+</html>
